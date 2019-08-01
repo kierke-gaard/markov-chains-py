@@ -1,14 +1,15 @@
-#%% 
 import numpy as np
 from collections import Counter, OrderedDict
 from itertools import groupby
+
+#%% Discrete cdf tables
 
 def fill_range(index_values, n, fill_value):
   '''[(0, 0), (1, 1), (4, 3), (5, 4)] -> {0: 0, 1: 1, 2: 0, 3: 0, 4: 3, 5: 4}'''
   ind_vals = dict(index_values)
   fill_vals = OrderedDict(zip(range(n), np.full(n, fill_value)))
   fill_vals.update(ind_vals)
-  return fill_vals
+  return list(fill_vals.items())
 
 def histogram(samples):
   '''[0, 0, 0, 2, 2] -> {0: 3, 2:2}'''
@@ -18,7 +19,8 @@ def histogram(samples):
 def integer_histogram(samples, n):
   '''[0, 0, 0,  2, 2], 3 -> [3, 0, 2]'''
   hist = fill_range(histogram(samples), n, 0)
-  return list(hist.values())
+  hist_vals = [x[1] for x in hist]
+  return hist_vals
 
 integer_histogram([0, 0, 0,  2, 2], 4)
 
@@ -33,32 +35,33 @@ def cdf_table(hist, n):
   x_f = np.stack((range(n), cdf), 1)
   return x_f 
 
-# minor tests
-n = 6
-size = 10000
-samples = np.random.randint(1, n - 1, size)
-# hist = integer_histogram([1,3,3,4],n)
-hist = integer_histogram(samples, n)
-# print(samples)
-print(hist)
-print(cdf_table(hist, n))
+# %%inverse cdf lookup tables
 
-#%%
-def remove_consequent_duplicates_by_second_val(list_of_pairs):
-  '''[(0, 0), (1, 1), (2, 1), (3, 4), (4, 5), (5, 5)] -> [(0, 0), (1, 1), (3, 4), (4, 5)]'''
-  return [x for i, x in enumerate(list_of_pairs) if i == 0 or x[1] != list_of_pairs[i-1][1]]
-
-f_x_removed_cons_dupl = remove_consequent_duplicates(x_f)
-remove_consequent_duplicates(x_f)
-
+def remove_consequent_duplicates(list_of_tuples, index):
+  '''removes consequent tuples if they equal at given index'''
+  return np.array([x for i, x in enumerate(list_of_tuples)
+                   if i == 0 or x[index] != list_of_tuples[i-1][index]])
 
 def forward_fill(arr):
     '''Returns an 1d array with nans replaced by forward fill. Heading nans remains
      eg. [nan 0 nan 1 nan] -> [nan 0 0 1 1]'''
+    if not isinstance(arr, np.ndarray):
+      arr = np.array(arr)
     mask = ~np.isnan(arr)
     idx = np.where(mask, np.arange(len(arr)), 0)
     np.maximum.accumulate(idx, out=idx)
     return arr[idx]
 
-np.round(np.array([1.4, 1.6])).astype(int)
-np.stack(([1,2,3], [10, 20, 30]), 1)
+def swap(list_of_pairs):
+  return [(x[1], x[0]) for x in list_of_pairs]
+
+def vals(list_of_tuples, index):
+  return [x[index] for x in list_of_tuples]
+
+def inverse_cdf_lookup_table(cdf_tab):
+  cdf_gaps = remove_consequent_duplicates(cdf_tab, 1)
+  inverse_cdf_gaps = swap(cdf_gaps)
+  inverse_cdf_nan = fill_range(inverse_cdf_gaps, len(cdf_tab), np.nan)
+  inverse_cdf_nan_vals = vals(inverse_cdf_nan, 1)
+  inverse_cdf = forward_fill(inverse_cdf_nan_vals)
+  return inverse_cdf.astype(int)
