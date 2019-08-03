@@ -5,10 +5,12 @@ histogram and inverse distribution look ups.
 import numpy as np
 from collections import Counter
 
-#%% Discrete cdf tables
+state_type = np.uint8
+
+#%% Discrete cdf tables from samples
 def histogram(samples):
   '''Returns array of named tuples: 'x' for the realizations, 'count' the number of occurences'''
-  cnt = np.array(list(Counter(samples).items()), dtype=[('x', int), ('count', float)])
+  cnt = np.array(list(Counter(samples).items()), dtype=[('x', state_type), ('count', float)])
   cnt.sort(order='x')
   m = np.sum(cnt['count'])
   cnt['count'] = cnt['count']/m
@@ -21,7 +23,7 @@ def inverse_cdf_lookup_table(hist, granularity):
   The values in the array represent an index of the statespace.'''
   upper_bounds = np.cumsum(hist['count'])
   mid_points = (np.arange(granularity) + 0.5)/granularity
-  arr = np.zeros(granularity, dtype=int)
+  arr = np.zeros(granularity, dtype=state_type)
   j, i = 0, 0
   while i < granularity:
     if mid_points[i] > upper_bounds[j]:
@@ -36,6 +38,14 @@ def inverse_cdf_lookup(samples, granularity):
 
 def realization(inverse_cdf_lookup_tbl, index):
   return inverse_cdf_lookup_tbl[index]
+
+#%% Retrieve samples from time series
+# Assumptions: 1d time series as 1d array with values in state space, no missing values, equitemporal
+
+def sliding_window(arr, window_len=1):
+  # step_size implicitly set to 1
+  n = len(arr)
+  return np.vstack([arr[i:n - window_len + i + 1] for i in range(window_len)]).transpose()
 
 #%% sample usage
 
