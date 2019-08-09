@@ -16,6 +16,12 @@ def histogram(samples):
   cnt['count'] = cnt['count']/m
   return cnt
 
+def complete_histogram(hist, number_of_states):
+  '''Add counts of zeros if there are no observations'''
+  cnt = np.zeros(number_of_states, float)
+  cnt[hist['x']] = hist['count']
+  return cnt
+
 def inverse_cdf_lookup_table(hist, granularity):
   '''Return a lookup table for state space indices as array.
   The index of the array represent a point in [0,1], namely
