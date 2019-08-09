@@ -57,6 +57,14 @@ def sliding_window(arr, window_len=1):
   n = len(arr)
   return np.vstack([arr[i:n - window_len + i + 1] for i in range(window_len)]).transpose()
 
+def groupby_butlast(arr):
+  '''Groups an array with keys as its entries apart from the last dimension
+  and value as list of occurences in the last dimension.'''
+  butlast = lambda x: x[:-1]
+  lasts = lambda xs: [x[-1] for x in xs]
+  sorted_arr = sorted(arr, key=butlast)
+  butlast_lasts = [(k, lasts(v)) for k, v in groupby(sorted_arr, butlast)]
+  return butlast_lasts
 #%% sample usage
 
 # Number of different states
