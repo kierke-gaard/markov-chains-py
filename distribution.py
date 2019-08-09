@@ -16,18 +16,20 @@ def histogram(samples):
   cnt['count'] = cnt['count']/m
   return cnt
 
-def complete_histogram(hist, number_of_states):
-  '''Add counts of zeros if there are no observations'''
+def complete_histogram(samples, number_of_states):
+  '''Add counts of zeros if there are no observations.
+  The index of the returned array represents the observation.'''
   cnt = np.zeros(number_of_states, float)
+  hist = histogram(samples)
   cnt[hist['x']] = hist['count']
   return cnt
 
-def inverse_cdf_lookup_table(hist, granularity):
+def inverse_cdf_lookup_table(complete_hist, granularity):
   '''Return a lookup table for state space indices as array.
   The index of the array represent a point in [0,1], namely
   a midpoint of an even partition of #granularity intervals.
   The values in the array represent an index of the statespace.'''
-  upper_bounds = np.cumsum(hist['count'])
+  upper_bounds = np.cumsum(complete_hist)
   mid_points = (np.arange(granularity) + 0.5)/granularity
   arr = np.zeros(granularity, dtype=state_type)
   j, i = 0, 0
@@ -35,12 +37,14 @@ def inverse_cdf_lookup_table(hist, granularity):
     if mid_points[i] > upper_bounds[j]:
       j += 1
     else: #<=
-      arr[i] = hist['x'][j]
+      arr[i] = j
       i +=1
   return arr
 
-def inverse_cdf_lookup(samples, granularity):
-  return inverse_cdf_lookup_table(histogram(samples), granularity)
+def inverse_cdf_lookup(samples, number_of_states, granularity):
+  hist_complete = complete_histogram(samples, number_of_states)
+  lookup_table_of_inverse_cdf = inverse_cdf_lookup_table(hist_complete, granularity)
+  return lookup_table_of_inverse_cdf
 
 def realization(inverse_cdf_lookup_tbl, index):
   return inverse_cdf_lookup_tbl[index]
