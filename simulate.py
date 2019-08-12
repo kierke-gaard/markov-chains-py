@@ -36,22 +36,6 @@ def rand_numbers(granularity, length):
   rand_nbrs = np.random.randint(0, granularity, length, dtype=state_type)
   return rand_nbrs
 
-#%% test: deterministic jump
-
-def test_deterministic_jump_process():
-  dist = np.array([[1],[0]])
-  rns= rand_numbers(1, 10)
-  return path(dist, (0,), rns)
-
-def test_2nd_order():
-  dist = random_dist(2, 3, 3)
-  rns = rand_numbers(1, 10)
-  return path(dist, (0,1), rns)
-
-def test_3rd_order():
-  space = 2
-  dist = random_dist(3, space, space)
-  rns = rand_numbers(space, 10)
-  return path(dist, (0,0,1), rns)
-
-# print(test_deterministic_jump_process(), test_2nd_order(), test_3rd_order())
+def simulate(dist, initial_states, length):
+  granularity = dist.shape[-1]
+  return path(dist, initial_states, rand_numbers(granularity, length))

@@ -1,6 +1,7 @@
 """
 distibtion - basic functionality for distibution handling like
 histogram and inverse distribution look ups.
+Assuming that the observations are integers starting from 0.
 """
 
 #%% Dependencies and Configuration
@@ -58,7 +59,7 @@ def realization(inverse_cdf_lookup_tbl, index):
 def sliding_window(arr, window_len=2):
   return np.vstack([arr[i:len(arr) - window_len + i + 1]
                     for i in range(window_len)]).transpose()
-
+  
 def groupby_butlast(arr):
   '''Groups an array with keys as its entries apart from the last dimension
   and value as list of occurences in the last dimension.'''
@@ -67,24 +68,18 @@ def groupby_butlast(arr):
   sorted_arr = sorted(arr, key=butlast)
   butlast_lasts = [(k, lasts(v)) for k, v in groupby(sorted_arr, butlast)]
   return butlast_lasts
-#%% sample usage
 
-# Number of different states
-
-def sample_usage():
-  # Number of different states
-  n_realizations = 10
-
-  # Observations
-  samples = np.random.randint(0, n_realizations, 1000)
-
-  # build discrete inverse distribution function for lookups
-  granularity = 10
-  inverse_cdf_lookup_tbl = inverse_cdf_lookup(samples, granularity)
-
-  # simulate
-  random_numbers = np.random.randint(0, n_realizations, 1000)
-  realizations = inverse_cdf_lookup_tbl.take(random_numbers)
-  return realizations
-
-# print(sample_usage())
+def dist_tensor(samples, number_of_states, order, granularity):
+  '''Returns a tensor with index of states spaces in each dimension,
+  one dimension for each step back in time. The last dimension is preserved
+  for the distribution of future states in the form of a inverse cdf lookup table'''
+  dimension = order * [number_of_states] + [granularity]
+  dist = np.zeros(dimension, dtype = state_type)
+  sliding_win = sliding_window(samples, window_len = order + 1)
+  cnts = groupby_butlast(sliding_win)
+  for c in cnts:
+    index = tuple(c[0])
+    hist = complete_histogram(c[1], number_of_states)
+    value = inverse_cdf_lookup_table(hist, granularity)
+    dist[index] = value 
+  return dist
