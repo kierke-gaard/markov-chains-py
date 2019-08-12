@@ -2,8 +2,11 @@
 distibtion - basic functionality for distibution handling like
 histogram and inverse distribution look ups.
 """
+
+#%% Dependencies and Configuration
 import numpy as np
 from collections import Counter
+from itertools import groupby
 
 state_type = np.uint8
 
@@ -52,10 +55,9 @@ def realization(inverse_cdf_lookup_tbl, index):
 #%% Retrieve samples from time series
 # Assumptions: 1d time series as 1d array with values in state space, no missing values, equitemporal
 
-def sliding_window(arr, window_len=1):
-  # step_size implicitly set to 1
-  n = len(arr)
-  return np.vstack([arr[i:n - window_len + i + 1] for i in range(window_len)]).transpose()
+def sliding_window(arr, window_len=2):
+  return np.vstack([arr[i:len(arr) - window_len + i + 1]
+                    for i in range(window_len)]).transpose()
 
 def groupby_butlast(arr):
   '''Groups an array with keys as its entries apart from the last dimension
