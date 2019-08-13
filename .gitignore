@@ -1,2 +1,7 @@
 *.pyc
 .vscode/launch.json
+MarkovChain.egg-info/dependency_links.txt
+MarkovChain.egg-info/PKG-INFO
+MarkovChain.egg-info/SOURCES.txt
+MarkovChain.egg-info/top_level.txt
+Todo.md
