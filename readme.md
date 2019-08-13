@@ -30,4 +30,3 @@ This package makes the following restrictions on Markov Chains:
   5. t <- t+1 and go to step 3.
 
 ![Urn-Tensor](doc/urn-tensor.PNG)
-
