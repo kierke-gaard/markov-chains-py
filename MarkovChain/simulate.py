@@ -32,9 +32,8 @@ def random_dist(markov_order, space_size, distribution_granularity):
   dist = np.random.randint(0, space_size, dist_dim, dtype=state_type)
   return dist
 
-def rand_numbers(granularity, length):
-  rand_nbrs = np.random.randint(0, granularity, length, dtype=state_type)
-  return rand_nbrs
+def rand_numbers(number_of_states, length):
+  return np.random.randint(0, number_of_states, length, dtype=state_type)
 
 def simulate(dist, initial_states, length):
   granularity = dist.shape[-1]
