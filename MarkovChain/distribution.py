@@ -33,6 +33,7 @@ def inverse_cdf_lookup_table(complete_hist, granularity):
   The index of the array represent a point in [0,1], namely
   a midpoint of an even partition of #granularity intervals.
   The values in the array represent an index of the statespace.'''
+  # note that an empty histogram will be mapped to all zeros
   upper_bounds = np.cumsum(complete_hist)
   mid_points = (np.arange(granularity) + 0.5)/granularity
   arr = np.zeros(granularity, dtype=state_type)

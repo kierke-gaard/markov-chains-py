@@ -1,4 +1,4 @@
-from  simulate import *
+from simulate import *
 from distribution import *
 import numpy as np
 
@@ -47,9 +47,9 @@ def sample_markov_chain_estimation_simulation():
   
   # calibration data
   n = 5
-  samples = np.random.randint(0, n, 100000)
+  samples = np.random.randint(0, n, 3)
 
-  # calibrate markov process
+  # calibrate 1-order markov process
   order = 1
   granu = 2 * n
   dist = dist_tensor(samples, n, order, granu)
@@ -58,6 +58,8 @@ def sample_markov_chain_estimation_simulation():
   init_states = (0,)
   sim = simulate(dist, init_states, 100000)
   print('Test calibration and simulation: distribution should be similar')
+  print('first order chain')
+  print('samples\n', samples[:100], '..')
   print('distribution of in samples\n', dist)
   print('distribution of simulations\n', dist_tensor(sim, n, order, granu))
 
